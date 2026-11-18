@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Clip × Salesforce · Command Center 2026</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+  --bg:#f3f5f9; --surface:#ffffff; --surface2:#e9eef6; --text:#122036; --muted:#566178; --line:#d5dce9;
+  --sf:#0b6bcb; --clip:#e8470c;
+  --done:#0e7a5f; --done-bg:rgba(14,122,95,.12);
+  --doing:#a45a00; --doing-bg:rgba(214,130,0,.15);
+  --prop:#6a3fc4; --prop-bg:rgba(106,63,196,.12);
+  --shadow:0 1px 2px rgba(18,32,54,.06);
+  --head:"Bricolage Grotesque","Segoe UI",system-ui,sans-serif;
+  --body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0c1424; --surface:#131d33; --surface2:#1b2742; --text:#eaf0fb; --muted:#9aa8c4; --line:#27365a;
+    --sf:#58a6ff; --clip:#ff7a45;
+    --done:#4fd1a5; --done-bg:rgba(79,209,165,.14);
+    --doing:#ffbf5e; --doing-bg:rgba(255,191,94,.14);
+    --prop:#b79bff; --prop-bg:rgba(183,155,255,.15);
+    --shadow:none;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0c1424; --surface:#131d33; --surface2:#1b2742; --text:#eaf0fb; --muted:#9aa8c4; --line:#27365a;
+  --sf:#58a6ff; --clip:#ff7a45;
+  --done:#4fd1a5; --done-bg:rgba(79,209,165,.14);
+  --doing:#ffbf5e; --doing-bg:rgba(255,191,94,.14);
+  --prop:#b79bff; --prop-bg:rgba(183,155,255,.15);
+  --shadow:none;
+}
+html{scroll-padding-top:calc(env(safe-area-inset-top,0px) + 70px);}
+*,*::before,*::after{box-sizing:inherit}
+body{margin:0;background:var(--bg);color:var(--text);font-family:var(--body);font-size:16px;line-height:1.55}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--bg);z-index:30}
+h1,h2,h3{font-family:var(--head);margin:0;line-height:1.15;letter-spacing:-.01em}
+button{font:inherit;color:inherit;cursor:pointer}
+:focus-visible{outline:3px solid var(--sf);outline-offset:2px}
+.wrap{max-width:1180px;margin:0 auto;padding:0 22px}
+
+/* header */
+.top{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--bg);border-bottom:1px solid var(--line)}
+.top .wrap{display:flex;align-items:center;gap:18px;min-height:58px;flex-wrap:wrap}
+.brand{font-family:var(--head);font-weight:700;font-size:18px;white-space:nowrap}
+.brand b{color:var(--clip)} .brand i{font-style:normal;color:var(--sf)}
+nav{display:flex;gap:4px;overflow-x:auto;flex:1}
+nav a{padding:8px 14px;border-radius:8px;color:var(--muted);text-decoration:none;font-weight:500;white-space:nowrap}
+nav a[aria-current="page"]{background:var(--surface2);color:var(--text)}
+.tt{border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 10px;font-size:14px}
+
+/* hero */
+.hero{padding:44px 0 26px}
+.hero h1{font-size:clamp(32px,5.2vw,58px);max-width:15ch;font-weight:700}
+.hero p{max-width:62ch;color:var(--muted);font-size:18px;margin:14px 0 0}
+section.view{display:none;padding-bottom:70px}
+section.view.on{display:block}
+h2.sec{font-size:26px;margin:34px 0 6px}
+.lead{color:var(--muted);max-width:68ch;margin:0 0 18px}
+
+/* status */
+.st{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:600;padding:3px 10px;border-radius:99px}
+.st::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+.st.done{color:var(--done);background:var(--done-bg)}
+.st.doing{color:var(--doing);background:var(--doing-bg)}
+.st.prop{color:var(--prop);background:var(--prop-bg)}
+.tag{display:inline-block;font-size:13px;color:var(--muted);border:1px solid var(--line);border-radius:6px;padding:1px 8px;margin:0 6px 6px 0}
+
+/* summary */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:14px}
+.kpi{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow)}
+.kpi b{display:block;font-family:var(--head);font-size:42px;line-height:1}
+.kpi span{color:var(--muted);font-size:15px}
+.ribbon{display:flex;height:16px;border-radius:99px;overflow:hidden;margin:18px 0 8px;background:var(--surface2)}
+.ribbon i{display:block}
+.legend{display:flex;gap:18px;flex-wrap:wrap;color:var(--muted);font-size:14px}
+.ctx{background:var(--surface);border-left:5px solid var(--sf);border-radius:4px 12px 12px 4px;padding:18px 22px;margin-top:26px;border-top:1px solid var(--line);border-right:1px solid var(--line);border-bottom:1px solid var(--line)}
+.ctx h3{font-size:20px;margin-bottom:6px}
+.ctx p{margin:0;color:var(--muted)}
+
+/* filters */
+.chips{display:flex;gap:8px;flex-wrap:wrap;margin:6px 0 20px}
+.chip{border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:6px 14px;font-size:14px;font-weight:500}
+.chip[aria-pressed="true"]{background:var(--text);color:var(--bg);border-color:var(--text)}
+
+/* roadmap */
+.tl{position:relative;margin:10px 0 0;padding-left:30px}
+.tl::before{content:"";position:absolute;left:8px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.mo{position:relative;margin-bottom:22px}
+.mo::before{content:"";position:absolute;left:-28px;top:7px;width:12px;height:12px;border-radius:50%;background:var(--sf);border:3px solid var(--bg)}
+.mo.p::before{background:var(--prop)}
+.mo h3{font-size:19px;margin-bottom:8px}
+.ev{display:flex;gap:12px;align-items:baseline;width:100%;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px;margin-bottom:8px;box-shadow:var(--shadow)}
+.ev:hover{border-color:var(--sf)}
+.ev .d{min-width:52px;color:var(--muted);font-size:14px;font-variant-numeric:tabular-nums}
+.ev .t{flex:1}
+.ev .k{width:4px;align-self:stretch;border-radius:4px;background:var(--done)}
+.ev.doing .k{background:var(--doing)} .ev.prop .k{background:var(--prop)}
+.today{display:flex;align-items:center;gap:12px;margin:4px 0 24px -30px;color:var(--clip);font-weight:600}
+.today::before{content:"";width:18px;height:18px;border-radius:50%;background:var(--clip);box-shadow:0 0 0 5px color-mix(in srgb,var(--clip) 25%,transparent);margin-left:0}
+.today::after{content:"";flex:1;height:2px;background:var(--clip)}
+
+/* cards */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:16px}
+.card{display:flex;flex-direction:column;gap:10px;text-align:left;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px;box-shadow:var(--shadow);border-top:4px solid var(--sf)}
+.card.c-agentes{border-top-color:var(--clip)} .card.c-prop{border-top-color:var(--prop)} .card.c-sic{border-top-color:var(--done)}
+.card:hover{border-color:var(--sf)}
+.card h3{font-size:20px}
+.card .per{color:var(--muted);font-size:14px}
+.card p{margin:0;color:var(--muted);font-size:15px}
+.card .more{margin-top:auto;color:var(--sf);font-weight:600;font-size:14px}
+
+/* modal */
+.ov{position:fixed;inset:0;background:rgba(8,14,26,.6);display:none;z-index:50;justify-content:flex-end}
+.ov.on{display:flex}
+.panel{background:var(--bg);width:min(720px,100%);height:100%;overflow-y:auto;padding:calc(24px + env(safe-area-inset-top,0px)) 26px calc(40px + env(safe-area-inset-bottom,0px));border-left:1px solid var(--line);animation:slide .22s ease-out}
+@keyframes slide{from{transform:translateX(30px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion:reduce){.panel{animation:none}}
+.x{float:right;border:1px solid var(--line);background:var(--surface);border-radius:8px;padding:6px 12px}
+.panel h2{font-size:30px;margin:6px 0 8px;max-width:20ch}
+.panel h4{font-family:var(--head);font-size:17px;margin:24px 0 6px}
+.panel ul{margin:0;padding-left:20px} .panel li{margin-bottom:5px}
+.mx{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:10px;margin-top:18px}
+.mx div{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px}
+.mx b{display:block;font-family:var(--head);font-size:26px;line-height:1.1}
+.mx span{font-size:13px;color:var(--muted)}
+.flow{display:flex;flex-direction:column;gap:0;margin:0;padding:0;list-style:none}
+.flow li{display:flex;gap:12px;padding:8px 0;border-left:2px solid var(--line);margin-left:11px;padding-left:20px;position:relative}
+.flow li::before{content:attr(data-n);position:absolute;left:-13px;top:7px;width:24px;height:24px;border-radius:50%;background:var(--sf);color:#fff;font-size:12px;font-weight:600;display:grid;place-items:center}
+.est{display:inline-block;font-size:12px;font-weight:600;color:var(--doing);background:var(--doing-bg);padding:1px 8px;border-radius:99px;margin-left:6px;vertical-align:middle}
+table{border-collapse:collapse;width:100%;font-size:15px}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line)}
+th{color:var(--muted);font-weight:500}
+.sc{overflow-x:auto}
+.box{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:6px 16px;margin:10px 0}
+.note{font-size:14px;color:var(--muted);margin-top:10px}
+
+/* inversion */
+.inv{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px;margin-top:10px}
+.invc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:18px}
+.invc b{font-family:var(--head);font-size:36px;display:block;color:var(--sf)}
+.invc.tot{background:var(--sf);border-color:var(--sf);color:#fff}
+.invc.tot b,.invc.tot span{color:#fff}
+.bar{height:10px;border-radius:99px;background:var(--surface2);margin:6px 0 14px;overflow:hidden}
+.bar i{display:block;height:100%;background:var(--prop)}
+
+/* next */
+.row{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:12px 16px;margin-bottom:8px;flex-wrap:wrap}
+.row .tx{flex:1;min-width:220px}
+.row small{display:block;color:var(--muted)}
+.pr{border:1px solid var(--line);border-radius:99px;padding:6px 16px;font-weight:600;font-size:14px;min-width:116px;background:var(--surface2)}
+.pr[data-v="0"]{color:var(--clip);border-color:var(--clip)}
+.pr[data-v="1"]{color:var(--sf);border-color:var(--sf)}
+.pr[data-v="2"]{color:var(--muted)}
+/* salud */
+.sh{display:grid;grid-template-columns:auto 1fr;gap:28px;align-items:center;margin-top:8px}
+@media (max-width:760px){.sh{grid-template-columns:1fr;justify-items:start}}
+.ring{width:164px;height:164px;border-radius:50%;background:conic-gradient(var(--done) 71%,var(--surface2) 0);display:grid;place-items:center}
+.ring div{width:124px;height:124px;border-radius:50%;background:var(--bg);display:grid;place-items:center;text-align:center;align-content:center}
+.ring b{font-family:var(--head);font-size:44px;line-height:1}
+.ring span{font-size:13px;color:var(--done);font-weight:600}
+.cg{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px}
+.cc{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:14px 16px;display:flex;flex-direction:column;gap:6px}
+.cc b{font-family:var(--head);font-size:34px;line-height:1}
+.cc small{color:var(--muted);font-size:13px;line-height:1.35}
+.sbar{display:block;height:8px;background:var(--surface2);border-radius:99px;overflow:hidden}
+.sbar i{display:block;height:100%;border-radius:99px}
+.sig{display:grid;grid-template-columns:1fr 110px;gap:14px;align-items:center;padding:11px 0;border-bottom:1px solid var(--line)}
+.sig:last-child{border-bottom:0}
+.sig small{display:block;color:var(--muted)}
+.sig .n{display:flex;align-items:center;gap:8px}
+.sig .n b{min-width:26px;text-align:right;font-variant-numeric:tabular-nums}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(310px,1fr));gap:16px}
+.opp{background:var(--surface);border:1px solid var(--line);border-left:5px solid var(--doing);border-radius:4px 12px 12px 4px;padding:14px 18px;margin-bottom:10px}
+.opp h3{font-size:18px;margin-bottom:4px}
+.opp p{margin:0;color:var(--muted);font-size:15px}
+.opp .sc0{float:right;font-family:var(--head);font-size:22px;color:var(--doing);margin-left:12px}
+.lk{border:1px solid var(--line);background:var(--surface2);border-radius:99px;padding:3px 12px;font-size:13px;margin:8px 6px 0 0}
+.lk:hover{border-color:var(--sf)}
+.foot{color:var(--muted);font-size:14px;padding:20px 0 40px}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="wrap">
+    <div class="brand"><b>Clip</b> × <i>Salesforce</i> · Command Center</div>
+    <nav id="nav" aria-label="Secciones">
+      <a href="#resumen">Resumen</a>
+      <a href="#roadmap">Roadmap</a>
+      <a href="#iniciativas">Iniciativas</a>
+      <a href="#inversion">Inversión</a>
+      <a href="#salud">Salud del contrato</a>
+      <a href="#siguientes">Siguientes pasos</a>
+    </nav>
+    <button class="tt" id="theme" type="button" aria-label="Cambiar tema claro u oscuro">Tema</button>
+  </div>
+</header>
+
+<main class="wrap">
+  <section class="view" id="v-resumen">
+    <div class="hero">
+      <h1>Roadmap de iniciativas con Salesforce</h1>
+      <p>Las iniciativas que Clip nos ha traído durante 2026 y cómo las hemos acompañado: por qué se hicieron, qué se entregó, dónde estamos y qué sigue. Actualizado al 17 de noviembre de 2026.</p>
+    </div>
+    <div class="kpis" id="kpis"></div>
+    <div class="ribbon" id="ribbon" role="img" aria-label="Distribución de iniciativas por estado"></div>
+    <div class="legend" id="legend"></div>
+    <div class="ctx">
+      <h3>De dónde salió el SIC Day</h3>
+      <p>Clip nos compartió su estrategia de disciplina operativa: usar mejor las herramientas de Salesforce, optimizar el uso con Slackbot y mejorar los procesos de venta con agentes para expandirse en zonas rurales. El 22 de junio configuramos esos casos de uso y se los entregamos para optimizar el uso del contrato, con inversión de Salesforce.</p>
+    </div>
+    <h2 class="sec">Cómo usar este tablero</h2>
+    <p class="lead">En Roadmap ves el año por mes. En Iniciativas abres cada una para ver su justificación. En Siguientes pasos podemos marcar juntos qué va primero.</p>
+  </section>
+
+  <section class="view" id="v-roadmap">
+    <h2 class="sec">Roadmap del año</h2>
+    <p class="lead">De noviembre de 2025 a la propuesta de diciembre de 2026. Toca cualquier hito para abrir su iniciativa.</p>
+    <div class="chips" id="rfilters"></div>
+    <div class="tl" id="tl"></div>
+  </section>
+
+  <section class="view" id="v-iniciativas">
+    <h2 class="sec">Iniciativas</h2>
+    <p class="lead">Cada ficha responde lo mismo: por qué se hizo, qué se entregó, en qué estado está y qué sigue.</p>
+    <div class="chips" id="ifilters"></div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="view" id="v-inversion">
+    <h2 class="sec">Inversión de Salesforce en el SIC Day</h2>
+    <p class="lead">Casos de uso configurados el 22 de junio de 2026 en la instancia de Clip, con inversión 100 % de Salesforce. Montos en dólares (USD).</p>
+    <div class="inv" id="inv"></div>
+    <h2 class="sec">Funding en proceso de aprobación</h2>
+    <p class="lead">Salesforce busca este funding para apoyar a Clip en la inversión de Customer 360. Todavía no está aprobado. Montos en dólares (USD).</p>
+    <div class="inv" id="fund"><div class="invc"><span class="st prop">En proceso de aprobación</span><b style="margin-top:10px">$80,000 <small style="font-size:16px;font-weight:400">USD</small></b><strong>Data 360 y UCP</strong><br><span style="color:var(--muted)">Funding que Salesforce busca para corregir la data fundacional de Clip y corregir UCP. Cubre lo cotizado por el equipo de Antártida y apoya a Clip en esa inversión.</span><div><button class="lk" type="button" data-id="c360">Customer 360</button><button class="lk" type="button" data-id="ucp">UCP</button></div></div></div>
+    <h2 class="sec">Esfuerzo de las propuestas en evaluación</h2>
+    <p class="lead">Horas estimadas por entregable. Las dos propuestas se aprueban y se ejecutan por separado, de forma coordinada.</p>
+    <div class="box" id="hours"></div>
+  </section>
+
+  <section class="view" id="v-salud">
+    <h2 class="sec">Salud del contrato</h2>
+    <p class="lead">Así va el aprovechamiento de Salesforce en Clip y dónde podemos apoyar más. Datos del Customer Success Score al 8 de noviembre de 2026, con plan Premier. La escala va de 0 a 100: 61 o más es Excelente, de 31 a 60 es Bueno y hasta 30 es Regular.</p>
+    <div class="sh">
+      <div class="ring" role="img" aria-label="Customer Success Score 71, Excelente"><div><b>71</b><span>Excelente</span></div></div>
+      <div class="cg" id="sc-cats"></div>
+    </div>
+    <p class="note">El puntaje total se mantiene estable: 0 de variación semanal, mensual y trimestral. Resultados de negocio está en beta y no cuenta en el total.</p>
+
+    <h2 class="sec">Qué está creciendo</h2>
+    <p class="lead">Señales de adopción que van por encima de su referencia.</p>
+    <div class="box" id="sc-up"></div>
+
+    <h2 class="sec">Dónde podemos apoyar más</h2>
+    <p class="lead">Espacios con capacidad disponible. Donde hay una iniciativa relacionada, puedes abrirla desde la etiqueta.</p>
+    <div id="sc-opp"></div>
+
+    <h2 class="sec">Resultados de negocio</h2>
+    <p class="lead">Avance frente a los objetivos que respalda cada producto.</p>
+    <div class="two">
+      <div class="box"><h3 style="font-size:18px;margin:12px 0 4px">Sales Cloud</h3><div id="sc-sales"></div></div>
+      <div class="box"><h3 style="font-size:18px;margin:12px 0 4px">Service Cloud</h3><div id="sc-service"></div></div>
+    </div>
+
+    <h2 class="sec">Funcionalidades recomendadas</h2>
+    <p class="lead">La plataforma sugiere activar o profundizar estas funciones, en orden de prioridad.</p>
+    <div class="box sc"><table><thead><tr><th>Producto</th><th>Prioridad</th><th>Funcionalidad</th><th>Puntaje actual</th></tr></thead><tbody id="sc-rec"></tbody></table></div>
+
+    <h2 class="sec">Equipo y contrato</h2>
+    <div class="two">
+      <div class="box" style="padding:16px"><h3 style="font-size:18px;margin-bottom:6px">Agentforce · conocimiento del equipo</h3><div id="sc-af"></div></div>
+      <div class="box" style="padding:16px"><h3 style="font-size:18px;margin-bottom:8px">Productos contratados</h3><div id="sc-prod"></div></div>
+    </div>
+    <p class="note">Fuente: Customer Success Score de Salesforce, corte al 8 de noviembre de 2026. Los puntajes comparan contra referencias de uso de otros clientes.</p>
+  </section>
+
+  <section class="view" id="v-siguientes">
+    <h2 class="sec">Siguientes pasos y prioridades</h2>
+    <p class="lead">Toca el botón de cada fila para asignar prioridad durante la reunión: Ahora, Siguiente o Después. Las selecciones se guardan en este navegador.</p>
+    <div id="nx"></div>
+    <button class="chip" id="reset" type="button">Limpiar prioridades</button>
+  </section>
+
+  <p class="foot">Cifras marcadas como estimado son proyecciones del caso de negocio, no resultados medidos.</p>
+</main>
+
+<div class="ov" id="ov" role="dialog" aria-modal="true" aria-label="Detalle de iniciativa"><div class="panel" id="panel"></div></div>
+
+<script>
+const ST={done:"Operando",doing:"En curso",prop:"Propuesta"};
+const CATS={all:"Todas",plataforma:"Plataforma",agentes:"Agentes de IA",sic:"SIC Day",prop:"Propuestas"};
+const I=[
+{id:"ucp",cat:"plataforma",s:"doing",lbl:"En revisión",name:"UCP · WhatsApp unificado",per:"Nov 2025 – Ago 2026 · en revisión",
+ tags:["WhatsApp","Omni-Channel","Marketing Cloud","Data 360"],
+ why:"Marketing, Ventas y Customer Happiness necesitaban atender al mismo merchant con el mismo contexto, y el equipo de CRM un canal nativo para el 1 a 1. UCP reúne promociones y atención en un solo número de WhatsApp. Hoy el proyecto está en revisión y se reimplementará dentro de Customer 360.",
+ did:["Diseño de un canal de WhatsApp único para Marketing y Servicio, conectado con Omni-Channel, Marketing Cloud y Data 360","Levantamiento de las 20 capacidades solicitadas por CRM y Ventas, Marketing y Growth, Customer Happiness y Nateevo","11 casos adicionales identificados sobre el perfil unificado: cross-sell, vista 360 del merchant, pausa de promociones, agente de IA, autoservicio, encuestas, entre otros","Documentación de cierre entregada en agosto de 2026"],
+ m:[["9","sesiones con Clip"],["6","hitos por correo"],["20","capacidades solicitadas"],["11","casos adicionales"]],
+ nxt:["Reimplementación a cargo del equipo de Antártida dentro de Customer 360 (incluye corrección UCP)","Definir con el área de datos la base de identidad del merchant en Data 360","Validar con CRM las reglas de asignación, horarios y tiempos de contacto","Configurar la medición del contacto efectivo y los reportes de seguimiento","Elegir un primer caso adicional, por ejemplo cross-sell"]},
+{id:"a1",cat:"agentes",s:"done",lbl:"En producción",name:"Agente 1 · Reemplazo de lectores",per:"En producción desde el 16 dic 2025",
+ tags:["WhatsApp","API Clip","Salesforce CRM","DataLibrary"],
+ why:"Los merchants con lectores en riesgo generaban churn silencioso, y cada reemplazo dependía de un ejecutivo disponible: un proceso lento, manual y difícil de escalar.",
+ did:["Gestión del reemplazo de punta a punta, desde la oferta hasta la orden logística, sin intervención humana","Caso en el CRM por cada reemplazo, con trazabilidad total","Escalamiento a un asesor sin perder el contexto"],
+ m:[["25k","conversaciones"],["800","lectores"],["1k","casos CRM creados automáticamente"]],
+ flow:["Detecta y contacta a merchants con lector en riesgo o deprecado","Ofrece el nuevo lector y resuelve preguntas frecuentes con DataLibrary","Captura dirección y datos de entrega","Genera la orden vía API Clip y crea el caso en el CRM","Escala a un asesor cuando hace falta"],
+ nxt:["Base para escalar a entrega de tarjetas de crédito","Reemplazo de tarjetas","Entrega de nuevos lectores a merchants nuevos"]},
+{id:"a2",cat:"agentes",s:"done",lbl:"En producción",name:"Agente 2 · Seguimiento de entregas",per:"En producción desde feb 2026",
+ tags:["WhatsApp","Email","Salesforce CRM"],
+ why:"Cuando una entrega fallaba, el equipo dependía de procesos manuales para recontactar al merchant, capturar nuevos datos y reprogramar. Había demoras, pérdida de contexto y carga operativa alta.",
+ did:["Rescate autónomo de entregas fallidas por WhatsApp y email","Caso en Salesforce y dirección actualizada en la tabla CRM","Reporte CSV diario con datos frescos para el equipo logístico"],
+ m:[["140","sesiones desde el lanzamiento"],["20","casos por día (proyectado en régimen)"]],
+ flow:["Detecta la falla y contacta al merchant por WhatsApp y email","Captura la nueva dirección y datos de entrega","Crea el caso en Salesforce y guarda los datos","Envía el reporte diario al equipo logístico"],nxt:[]},
+{id:"a3",cat:"agentes",s:"done",lbl:"En producción",name:"Agente 3 · Protocolo tarjetahabiente",per:"En producción desde feb 2026",
+ tags:["WhatsApp","Salesforce CRM"],
+ why:"El protocolo ante reportes de fraude era manual y sin estandarizar: el equipo recibía información fragmentada y le costaba armar el expediente de cada caso.",
+ did:["Expediente estructurado por cada caso de fraude","Base consolidada en Salesforce CRM, con trazabilidad completa para el equipo de investigación","Menos tiempo de respuesta en casos críticos"],
+ m:[["376","conversaciones documentadas"]],
+ flow:["Contacta al cliente por WhatsApp y pide la información de verificación","Guarda las respuestas en Salesforce, estructuradas por caso","El equipo de fraude accede a los datos completos para investigar"],nxt:[]},
+{id:"a4",cat:"agentes",s:"doing",lbl:"En revisión",name:"Agente 4 · SDR Agent (caso ruralidad)",per:"En sesiones de revisión para pasar a productivo · sin fecha todavía",
+ tags:["WhatsApp","WhatsApp Voice","Marketing Cloud","Agentforce","Slackbot"],
+ why:"Escalar la adquisición de merchants rurales sin aumentar el equipo de ventas. Los comercios con poca familiaridad digital pueden cerrar la venta, completar KYC y activar su terminal por WhatsApp, sin una segunda visita del vendedor. El caso evoluciona hacia un SDR Agent y hoy se revisa en sesiones con el equipo para pasar a productivo.",
+ did:["Flujo de punta a punta en 10 acciones: Marketing Cloud, WhatsApp, Agentforce, voz por WhatsApp, envío de terminal y merchant activo","WhatsApp Voice para asesoría de activación, primer caso de este tipo en México","La SIM 4G incluida en la terminal convierte la conectividad rural en una ventaja"],
+ m:[["10","acciones de punta a punta"],["32","estados desde el día 1 (estimado)"]],
+ est:true,
+ nxt:["Cerrar las sesiones de revisión y pasar a productivo","Crédito Clip: asesoría y preaprobación por WhatsApp","Upsell de terminal premium y accesorios","Cross-sell de otros productos Clip","Expansión a los 22 estados sin presencia hoy"]},
+{id:"spiff",cat:"plataforma",s:"done",lbl:"Implementado",name:"Spiff · Comisiones e incentivos",per:"Requerimiento mar 2026 · Implementación may 2026",
+ tags:["Spiff","Salesforce","LiftUp Solutions"],
+ why:"Automatizar el cálculo de comisiones y motivar a los equipos incentivados, con transparencia para vendedores, Finanzas, Recursos Humanos y Dirección.",
+ did:["Hasta 8 planes de comisión para automatizar los cálculos","Tableros individuales de estado de comisión, uno por plan, y flujos de aprobación","5 reportes personalizados y 1 tablero consolidado para Dirección, Recursos Humanos y Finanzas","Conexión con Salesforce y carga manual por Excel o CSV","Talleres de capacitación para administradores y usuarios finales, y 20 horas de soporte bajo demanda"],
+ m:[["8","planes de comisión (hasta)"],["5 + 1","reportes y tablero consolidado"],["10","semanas de metodología"]],
+ nxt:["Los casos fuera del alcance estándar, como clawbacks, draws y true-ups, pueden evaluarse en una siguiente fase"]},
+{id:"fs",cat:"plataforma",s:"doing",lbl:"En implementación",name:"Field Service",per:"Visto desde may 2026 · Implementación desde nov 2026 (4 semanas)",
+ tags:["Field Service"],
+ why:"Se empezó a evaluar en mayo de 2026 y la implementación se ejecuta en noviembre.",
+ did:["Implementación recién arrancada en noviembre de 2026, con 4 semanas de duración estimadas por el equipo"],m:[],nxt:["Completar la implementación en las 4 semanas estimadas"]},
+{id:"shield",cat:"plataforma",s:"prop",lbl:"Pendiente de decisión",name:"Shield · Seguridad y cifrado de datos",per:"Alcance entregado a Clip · sin fecha de confirmación",
+ tags:["Salesforce Shield","Cifrado","Seguridad"],
+ why:"Clip nos pidió reforzar la seguridad y el cifrado de sus datos en Salesforce. Los flujos de captura en campo y los agentes manejan información sensible de merchants (RFC, documentos KYC, CLABE), y esta capa acompaña el crecimiento de esos casos.",
+ dl:"Qué contempla",
+ did:["Alcance entregado a Clip para cubrir Shield tanto en Core como en Marketing","Referencia de producto: Shield reúne cifrado de datos en reposo, monitoreo de eventos y auditoría de cambios en campos","Se complementa con las configuraciones de seguridad que recomienda el reporte de Salud del contrato"],
+ m:[["20","puntaje de seguridad de la org hoy (Regular)"]],
+ nxt:["Confirmar con Clip si adquirirán Shield","Definir fecha de decisión y, si aplica, fechas de implementación","Alinear el alcance de Core y Marketing según la decisión"]},
+{id:"slack",cat:"sic",s:"done",lbl:"Entregado",name:"Slackbot D2D · Captura de leads en campo",per:"SIC Day · 22 jun 2026",inv:30000,
+ tags:["Slackbot","Sales Cloud","Marketing Cloud"],
+ why:"El vendedor de campo trabaja desde Slack en su teléfono, no desde el CRM. Capturar el lead ahí mismo evita doble captura y mantiene los permisos por territorio.",
+ did:["7 casos de uso configurados en un solo Slackbot","Caso 0, primer contacto presencial: el agente valida RFC, régimen fiscal, giro, contacto, WhatsApp y consentimiento, y crea el Lead en Sales Cloud sin salir de la app","Al capturar el lead, Marketing Cloud dispara el journey de WhatsApp en minutos, cuando el interés es máximo"],
+ m:[["7","casos de uso"],["$30K","inversión Salesforce"]],nxt:[]},
+{id:"agwa",cat:"sic",s:"done",lbl:"Entregado",name:"Agentforce + WhatsApp · Cierre y activación rural",per:"SIC Day · 22 jun 2026",inv:50000,
+ tags:["Agentforce","WhatsApp","Marketing Cloud"],
+ why:"Que un comercio rural pueda comprar y activar su terminal por WhatsApp, sin segunda visita del vendedor, y que el registro llegue a Salesforce sin intervención manual.",
+ did:["Caso 1, cierre de venta: el Agente Clip recupera el contexto, recomienda la terminal (Clip Ultra con SIM 4G para zonas sin WiFi), solicita documentos (SAT, INE, CLABE), valida KYC y coordina la entrega","Caso 2, activación: guía el encendido, el login con la cuenta Clip y la primera venta de prueba","El Lead avanza a Oportunidad automáticamente, con CLABE vinculada y términos aceptados"],
+ m:[["2","casos de uso"],["$50K","inversión Salesforce"]],nxt:[]},
+{id:"analytics",cat:"sic",s:"done",lbl:"Entregado",name:"Analítica comercial · 7 dashboards",per:"SIC Day · 22 jun 2026",inv:30000,
+ tags:["Tableau","Sales Cloud"],
+ why:"Que supervisores y dirección vean en tiempo real la conversión de cada vendedor, sin depender de captura manual.",
+ did:["Leaderboard: compara oportunidades, cierres y actividad diaria","Team Trending: velocidad de prospección y tendencias del pipeline","Forecast: cumplimiento de cuota y deals próximos a cerrar","Team Whitespace: espacios en blanco de producto por cuenta","Team Benchmark: benchmarks para un equipo de alto desempeño","Activities: llamadas, reuniones, correos y seguimientos por cuenta","Executive Overview: salud del pipeline y KPIs para dirección y gerencia de zona"],
+ m:[["7","dashboards"],["$30K","inversión Salesforce"]],nxt:[]},
+{id:"c360",cat:"prop",s:"prop",lbl:"Propuesta",name:"Customer 360 (incluye corrección UCP)",per:"Dic 2026 – Jun 2027 (propuesto)",
+ tags:["Sales Cloud","Service Cloud","Data 360","Marketing Cloud","Antártida"],
+ why:"Que cada equipo de Clip vea al mismo merchant con el mismo contexto, para hacer upsell y cross-sell, frenar publicidad a quien tiene un problema y anticipar el churn.",
+ did:["Track 1, Foundations y UCP: un registro por merchant, catálogos en el CRM y datos de contacto confiables para UCP. Incluye la corrección de UCP, con el compromiso de dejarlo funcionando al cierre de Foundations, en marzo","Track 2, medición comercial: contacto efectivo y SLA de primer contacto, ligados a la oportunidad","Track 3, Data 360 y vista 360: perfil unificado por Merchant ID, MVP de propensity y hasta 2 módulos de vista 360"],
+ m:[["1,450 h","esfuerzo total"],["3","tracks"]],
+ nxt:["Aprobación del proyecto","Kick-off propuesto el 1 de diciembre","Discovery conjunto en diciembre"]},
+{id:"omni",cat:"prop",s:"prop",lbl:"Propuesta",name:"Omnicanalidad",per:"Dic 2026 – Abr 2027 (propuesto)",
+ tags:["Service Cloud Voice","Amazon Connect","WhatsApp","Antártida"],
+ why:"Que Customer Happiness y Ventas atiendan llamadas y WhatsApp desde Salesforce con el contexto del merchant: cada interacción registrada, asignada al ejecutivo correcto y medida.",
+ did:["Frente 1, consolas y multi-skill: una llamada y hasta 4 chats por persona, sin bloqueos","Frente 2, Voice para Ventas: carrusel de números, presencia local y campañas de llamadas","Frente 3, WhatsApp y WhatsApp Voice: hunters fuera del celular personal e IA que deriva a una persona con contexto","Transversal: horarios con plan contra real en tiempo real"],
+ m:[["1,250 h","esfuerzo total"],["3","frentes"]],
+ nxt:["Aprobación del proyecto","Kick-off propuesto el 1 de diciembre","Discovery y assessment en diciembre"]}
+];
+const byId=Object.fromEntries(I.map(x=>[x.id,x]));
+
+const EV=[
+["Nov 2025",[["26 nov","Workshop de casos de uso de WhatsApp unificado","ucp"]]],
+["Dic 2025",[["16 dic","Reemplazo de lectores entra en producción","a1"]]],
+["Feb 2026",[["Feb","Seguimiento de entregas en producción","a2"],["Feb","Protocolo tarjetahabiente en producción","a3"],["17 feb","Marketing prioriza journeys de WhatsApp","ucp"],["24 feb","Discovery con CRM y Ventas","ucp"]]],
+["Mar 2026",[["Mar","Se solicita Spiff: requerimiento de comisiones","spiff"],["4 mar","Plan de Data Cloud e identidad","ucp"],["6 mar","Propuesta de UCP para sustituir TUVIS","ucp"]]],
+["Abr 2026",[["27 abr","Correo con la propuesta de reemplazo","ucp"]]],
+["May 2026",[["May","Implementación de Spiff","spiff"],["May","Se empieza a ver Field Service","fs"],["22 may","Clip confirma y arranca el proyecto UCP","ucp"]]],
+["Jun 2026",[["17 jun","Pre-kickoff de UCP con Clip y Nateevo","ucp"],["22 jun","SIC Day: Slackbot D2D, 7 casos de uso","slack"],["22 jun","SIC Day: Agentforce + WhatsApp, 2 casos de uso","agwa"],["22 jun","SIC Day: 7 dashboards de analítica","analytics"],["Jun","Entregable a Clip con todos los casos configurados","slack"]]],
+["Jul 2026",[["24 jul","Orden de pedido de UCP firmada","ucp"]]],
+["Ago 2026",[["11 ago","Documentación de cierre de UCP","ucp"]]],
+["TODAY",[]],
+["Nov 2026",[["Nov","Implementación de Field Service (4 semanas estimadas)","fs","doing"],["Nov","UCP en revisión: se reimplementa dentro de Customer 360","ucp","doing"],["Nov","Propuesta de Customer 360 (incluye corrección UCP)","c360","prop"],["Nov","Propuesta de Omnicanalidad","omni","prop"]]],
+["Dic 2026",[["1 dic","Kick-off propuesto de Customer 360 (incluye corrección UCP) y Omnicanalidad","c360","prop"]]]
+];
+
+const $=s=>document.querySelector(s);
+let rcat="all",icat="all";
+
+function kpis(){
+  const n=I.length,d=I.filter(x=>x.s==="done").length,c=I.filter(x=>x.s==="doing").length,p=I.filter(x=>x.s==="prop").length;
+  const tot=I.reduce((a,x)=>a+(x.inv||0),0);
+  $("#kpis").innerHTML=[[n,"iniciativas en el año"],[d,"operando o entregadas"],["$"+Math.round(tot/1000)+"K","inversión de Salesforce en el SIC Day (USD)"],[4,"agentes de IA listos o en producción"],[71,"Customer Success Score, nivel Excelente"]].map(k=>`<div class="kpi"><b>${k[0]}</b><span>${k[1]}</span></div>`).join("");
+  $("#ribbon").innerHTML=`<i style="width:${d/n*100}%;background:var(--done)"></i><i style="width:${c/n*100}%;background:var(--doing)"></i><i style="width:${p/n*100}%;background:var(--prop)"></i>`;
+  $("#legend").innerHTML=`<span><span class="st done">Operando</span> ${d}</span><span><span class="st doing">En curso o en revisión</span> ${c}</span><span><span class="st prop">Propuesta o solicitud</span> ${p}</span>`;
+}
+function chips(el,cur,fn){
+  el.innerHTML=Object.entries(CATS).map(([k,v])=>`<button class="chip" type="button" data-k="${k}" aria-pressed="${k===cur}">${v}</button>`).join("");
+  el.querySelectorAll("button").forEach(b=>b.onclick=()=>fn(b.dataset.k));
+}
+function roadmap(){
+  chips($("#rfilters"),rcat,k=>{rcat=k;roadmap()});
+  const today=new Date(2026,10,17);
+  $("#tl").innerHTML=EV.map(([m,es])=>{
+    if(m==="TODAY")return `<div class="today">Hoy · 17 nov 2026</div>`;
+    const list=es.filter(e=>rcat==="all"||byId[e[2]].cat===rcat);
+    if(!list.length)return "";
+    const fut=m==="Dic 2026";
+    return `<div class="mo${fut?" p":""}"><h3>${m}</h3>${list.map(e=>{
+      const cls=e[3]||(fut?"prop":(e[2]==="ucp"?"doing":"done"));
+      return `<button class="ev ${cls==="done"?"":cls}" type="button" data-id="${e[2]}"><span class="k"></span><span class="d">${e[0]}</span><span class="t">${e[1]}</span><span class="st ${cls}">${cls==="prop"?"Propuesta":byId[e[2]].lbl}</span></button>`}).join("")}</div>`;
+  }).join("");
+  $("#tl").querySelectorAll(".ev").forEach(b=>b.onclick=()=>open(b.dataset.id));
+}
+function grid(){
+  chips($("#ifilters"),icat,k=>{icat=k;grid()});
+  $("#grid").innerHTML=I.filter(x=>icat==="all"||x.cat===icat).map(x=>`
+   <button class="card c-${x.cat}" type="button" data-id="${x.id}">
+     <span class="st ${x.s}">${x.lbl}</span>
+     <h3>${x.name}</h3><div class="per">${x.per}</div>
+     <p>${x.why.length>150?x.why.slice(0,147)+"…":x.why}</p>
+     <span class="more">Ver detalle</span>
+   </button>`).join("");
+  $("#grid").querySelectorAll(".card").forEach(b=>b.onclick=()=>open(b.dataset.id));
+}
+const fmt=n=>"$"+n.toLocaleString("en-US")+" <small style=\"font-size:15px;font-weight:400\">USD</small>";
+function open(id){
+  const x=byId[id];
+  const est=x.est?`
+   <h4>Potencial del canal digital <span class="est">Estimado</span></h4>
+   <div class="sc"><table><thead><tr><th></th><th>D2D en campo</th><th>Canal digital hoy</th><th>Redes + Agentforce</th></tr></thead><tbody>
+   <tr><td>Merchants por mes</td><td>3,300</td><td>70</td><td>600</td></tr>
+   <tr><td>Costo por lead (USD)</td><td>$21.30</td><td>$13.28</td><td>$2.00</td></tr>
+   <tr><td>Cobertura</td><td>10 estados</td><td>Web orgánica</td><td>32 estados</td></tr>
+   <tr><td>Seguimiento</td><td>Lineal, suma personas</td><td>Manual</td><td>Autónomo 24/7</td></tr>
+   <tr><td>ARR anual (USD)</td><td>—</td><td>$247.6K</td><td>$2.12M</td></tr></tbody></table></div>
+   <div class="mx"><div><b>×8.6</b><span>merchants al mes vs. canal digital hoy</span></div><div><b>+6,360</b><span>merchants nuevos en el año 1</span></div><div><b>+$1.87M</b><span>ARR incremental estimado</span></div><div><b>−85%</b><span>costo por lead ($13.28 a $2.00)</span></div></div>
+   <p class="note">Proyecciones del caso de negocio: 3,000 leads de redes con 20 % de conversión frente a 700 leads web con 10 %. El agente no reemplaza el modelo D2D, abre un canal digital que hoy no opera a escala.</p>`:"";
+  $("#panel").innerHTML=`
+   <button class="x" type="button" id="close">Cerrar</button>
+   <span class="st ${x.s}">${x.lbl}</span>
+   <h2>${x.name}</h2>
+   <div class="per" style="color:var(--muted)">${x.per}</div>
+   <div style="margin-top:12px">${x.tags.map(t=>`<span class="tag">${t}</span>`).join("")}</div>
+   <h4>Por qué se hizo</h4><p style="margin:0">${x.why}</p>
+   <h4>${x.dl||"Qué se entregó"}</h4><ul>${x.did.map(d=>`<li>${d}</li>`).join("")}</ul>
+   ${x.m.length?`<div class="mx">${x.m.map(m=>`<div><b>${m[0]}</b><span>${m[1]}</span></div>`).join("")}</div>`:""}
+   ${x.flow?`<h4>Cómo funciona</h4><ol class="flow">${x.flow.map((f,i)=>`<li data-n="${i+1}">${f}</li>`).join("")}</ol>`:""}
+   ${est}
+   ${x.nxt.length?`<h4>Qué sigue</h4><ul>${x.nxt.map(d=>`<li>${d}</li>`).join("")}</ul>`:""}`;
+  $("#ov").classList.add("on");
+  $("#close").focus();
+  $("#close").onclick=close;
+}
+function close(){$("#ov").classList.remove("on")}
+$("#ov").addEventListener("click",e=>{if(e.target.id==="ov")close()});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")close()});
+
+function inversion(){
+  const rows=I.filter(x=>x.inv);const tot=rows.reduce((a,x)=>a+x.inv,0);
+  $("#inv").innerHTML=rows.map(x=>`<div class="invc"><b>${fmt(x.inv)}</b><strong>${x.name.split(" · ")[0]}</strong><br><span style="color:var(--muted)">${x.m[0][0]} ${x.m[0][1]}</span></div>`).join("")+
+   `<div class="invc tot"><b>${fmt(tot)}</b><strong>Total SIC Day</strong><br><span>Inversión de Salesforce, 22 de junio de 2026</span></div>`;
+  const H=[["Customer 360 (incluye corrección UCP)",[["Track 1 · Foundations y UCP",680],["Track 2 · Medición comercial",120],["Track 3 · Data 360 y vista 360",650]]],["Omnicanalidad",[["Consolas y multi-skill",210],["Voice para Ventas",420],["WhatsApp y WhatsApp Voice",400],["Discovery, assessment, horarios y diseño escalable",220]]]];
+  $("#hours").innerHTML=H.map(([n,r])=>{const t=r.reduce((a,x)=>a+x[1],0);return `<h3 style="font-size:19px;margin:14px 0 4px">${n} · ${t.toLocaleString("en-US")} h</h3>`+r.map(x=>`<div style="display:flex;justify-content:space-between;gap:10px"><span>${x[0]}</span><b>${x[1]} h</b></div><div class="bar"><i style="width:${x[1]/680*100}%"></i></div>`).join("")}).join("");
+}
+
+const lv=s=>s>=61?"var(--done)":s>=31?"var(--doing)":"var(--clip)";
+const sbar=s=>`<span class="sbar"><i style="width:${s}%;background:${lv(s)}"></i></span>`;
+function salud(){
+  const cats=[["Adopción de producto",70,"Uso de licencias y funcionalidades"],["Conocimiento del cliente",77,"Aprendizaje, acompañamiento y certificaciones"],["Salud técnica",70,"Rendimiento, configuración y seguridad"],["Resultados de negocio",94,"Avance en objetivos de Sales y Service Cloud (beta)"]];
+  $("#sc-cats").innerHTML=cats.map(c=>`<div class="cc"><span>${c[0]}</span><b>${c[1]}</b>${sbar(c[1])}<small>${c[2]}</small></div>`).join("");
+  const up=[["Agentforce Contact Center · uso de licencias","90 % de los usuarios activados entra cada mes (referencia: más de 61 %)",96],["Sales y Service Cloud · crecimiento de cuentas","+40 % en 12 meses (referencia: más de 1.9 %)",73],["Data 360 · ingesta de datos por lotes","+30 % frente al promedio de 12 meses (referencia: más de 12.1 %)",67],["Sales y Service Cloud · uso de Events","30 % de los usuarios al mes (referencia: más de 14.7 %)",38]];
+  $("#sc-up").innerHTML=up.map(u=>`<div class="sig"><div><strong>${u[0]}</strong><small>${u[1]}</small></div><div class="n">${sbar(u[2])}<b>${u[2]}</b></div></div>`).join("");
+  const op=[
+   ["Conversión de leads y Web-to-Case","El uso mensual de la conversión estándar de leads y de Web-to-Case está en cero. Conviene revisar con Clip si se adoptan o si los flujos actuales ya cubren ese caso.",0,["slack","agwa","ucp"]],
+   ["Acciones de Agentforce","El indicador de acciones de agentes está por debajo de su promedio de 12 meses. Conviene validar que esté capturando la actividad de los agentes en producción.",3,["a1","a2","a3","a4"]],
+   ["Consultas aceleradas de Data 360 con Tableau","Bajaron frente al promedio. Los dashboards de analítica y Customer 360 son la palanca natural para recuperarlas.",1,["analytics","c360"]],
+   ["Automatización con Flow en lugar de Process Builder","1,296 ejecuciones frente a una referencia de menos de 730. Salesforce recomienda migrar a Flow Builder.",30,[]],
+   ["Seguridad de la org","Cinco configuraciones con puntaje cero: vida mínima de contraseña, detección de toxicidad y de inyección de prompts, respuesta secreta oculta y setPassword en API. Con agentes en producción, activar las dos detecciones de prompts es un paso natural.",20,["shield","a1","a2","a3","a4"]],
+   ["Experiencia en Service Cloud","Acelerar la resolución de casos (38), experiencia personalizada (40) y coaching a agentes (0) son los resultados con más espacio.",0,["ucp","omni","c360"]]
+  ];
+  $("#sc-opp").innerHTML=op.map((o,i)=>`<div class="opp"><span class="sc0">${o[2]}</span><h3>${o[0]}</h3><p>${o[1]}</p>${o[3].map(id=>`<button class="lk" type="button" data-id="${id}">${byId[id].name.split(" · ")[0]}</button>`).join("")}</div>`).join("");
+  $("#sc-opp").querySelectorAll(".lk").forEach(b=>b.onclick=()=>open(b.dataset.id));
+  const sig=(n,s)=>`<div class="sig"><div>${n}</div><div class="n">${sbar(s)}<b>${s}</b></div></div>`;
+  $("#sc-sales").innerHTML=[["Primeros pasos con Sales Cloud",79],["Aumentar volumen de deals",78],["Aumentar número de clientes",81],["Crecer el pipeline",61],["Mejorar lealtad del cliente",78],["Mejorar precisión del forecast",92],["Mejorar win rate",61],["Aumentar tamaño de deal",64],["Aprovechar tecnología y automatización",38],["Reducir el ciclo de venta",68]].map(x=>sig(x[0],x[1])).join("");
+  $("#sc-service").innerHTML=[["Acelerar la resolución de casos",38],["Productividad de los agentes de servicio",68],["Coaching a agentes",0],["Experiencia personalizada",40],["IA y autoservicio para clientes",90]].map(x=>sig(x[0],x[1])).join("");
+  $("#sc-rec").innerHTML=[["Sales Cloud",1,"Oportunidades",46],["Sales Cloud",2,"Contactos",20],["Sales Cloud",3,"Proceso de ventas (Path)",20],["Service Cloud",1,"Casos",38],["Service Cloud",2,"Reglas de escalamiento de casos",0],["Service Cloud",3,"Publicación en Knowledge",1]].map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
+  $("#sc-af").innerHTML=`<div class="mx"><div><b>93</b><span>puntaje de Agentforce</span></div><div><b>6</b><span>certificaciones (referencia: más de 1)</span></div><div><b>3</b><span>Agentblazers (referencia: más de 1)</span></div></div>`;
+  $("#sc-prod").innerHTML=["Sales y Service Cloud","Agentforce","Agentforce Contact Center","Service Cloud Voice","Digital Engagement","Data 360","Marketing on Core","Field Service","Salesforce Maps","Sales Engagement","Connect","API","Events","Mobile","Identity","AppExchange","Storage","Sandbox"].map(t=>`<span class="tag">${t}</span>`).join("");
+}
+const NX=[
+["Aprobar y arrancar Customer 360 (incluye corrección UCP) y Omnicanalidad","Kick-off propuesto el 1 de diciembre"],
+["Completar la implementación de Field Service","Implementación de 4 semanas, recién arrancada"],
+["UCP (en revisión): definir la base de identidad del merchant en Data 360","Con el área de datos"],
+["UCP (en revisión): validar reglas de asignación, horarios y tiempos de contacto","Con CRM"],
+["UCP (en revisión): configurar la medición del contacto efectivo","Reportes de seguimiento"],
+["UCP (en revisión): elegir el primer caso adicional","Por ejemplo, cross-sell"],
+["Agente 4 SDR (caso ruralidad): pasar a productivo y planear la expansión","Estimado: 32 estados desde el día 1"],
+["Aprobar el funding de $80,000 USD para Data 360 y UCP","Funding de Salesforce para corregir la data fundacional y UCP"],
+["Shield: confirmar con Clip si lo adquiere","Alcance entregado para Core y Marketing; sin fecha de confirmación"],
+["Salud del contrato: fortalecer la configuración de seguridad","Puntaje actual 20; incluye detección de toxicidad e inyección de prompts"],
+["Salud del contrato: migrar Process Builder a Flow","1,296 ejecuciones frente a una referencia de 730"],
+["Salud del contrato: profundizar en funciones de Service Cloud","Casos, reglas de escalamiento y Knowledge"]
+];
+const PL=["Ahora","Siguiente","Después"];
+let pr={};
+try{pr=JSON.parse(localStorage.getItem("clip-prio-v1")||"{}")}catch(e){pr={}}
+function nx(){
+  $("#nx").innerHTML=NX.map((n,i)=>{const v=pr[i];return `<div class="row"><div class="tx"><strong>${n[0]}</strong><small>${n[1]}</small></div><button class="pr" type="button" data-i="${i}" data-v="${v===undefined?"":v}">${v===undefined?"Por definir":PL[v]}</button></div>`}).join("");
+  $("#nx").querySelectorAll(".pr").forEach(b=>b.onclick=()=>{const i=b.dataset.i;const v=pr[i];pr[i]=v===undefined?0:(v+1>2?undefined:v+1);if(pr[i]===undefined)delete pr[i];save();nx()});
+}
+function save(){try{localStorage.setItem("clip-prio-v1",JSON.stringify(pr))}catch(e){}}
+$("#reset").onclick=()=>{pr={};save();nx()};
+
+const VIEWS=["resumen","roadmap","iniciativas","inversion","salud","siguientes"];
+function route(){
+  let h=(location.hash||"").slice(1);if(!VIEWS.includes(h))h="resumen";
+  VIEWS.forEach(v=>$("#v-"+v).classList.toggle("on",v===h));
+  document.querySelectorAll("#nav a").forEach(a=>{if(a.getAttribute("href")==="#"+h)a.setAttribute("aria-current","page");else a.removeAttribute("aria-current")});
+  close();window.scrollTo(0,0);
+}
+window.addEventListener("hashchange",route);
+
+$("#theme").onclick=()=>{
+  const r=document.documentElement;
+  const dark=r.dataset.theme?r.dataset.theme==="dark":matchMedia("(prefers-color-scheme: dark)").matches;
+  r.dataset.theme=dark?"light":"dark";
+  try{localStorage.setItem("clip-theme",r.dataset.theme)}catch(e){}
+};
+try{const t=localStorage.getItem("clip-theme");if(t)document.documentElement.dataset.theme=t}catch(e){}
+
+document.querySelectorAll("#fund .lk").forEach(b=>b.onclick=()=>open(b.dataset.id));
+kpis();roadmap();grid();inversion();salud();nx();route();
+</script>
+</body>
+</html>
